@@ -27,73 +27,108 @@ jobs:
       - name: 1. Checkout Repository
         uses: actions/checkout@v4
 
-      - name: 2. Setup Node.js 20.x
+      - name: 2. Setup Node.js 22.x
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
           cache-dependency-path: |
             pawlife-e2e/package-lock.json
             pawlife-web/package-lock.json
             pawlife-server/package-lock.json
 
-      - name: 3. Install Browser Drivers
-        uses: browser-actions/setup-chrome@v1
-        with:
-          chrome-version: stable
-
-      - name: 4. Install Dependencies (Backend, Web & E2E)
+      - name: 3. Install Dependencies & Build Projects
         run: |
-          echo "=== Installing pawlife-server dependencies ==="
-          cd pawlife-server && npm install && npx prisma db push && npm run build
+          echo "=== 1. Setting up Backend Server (pawlife-server) ==="
+          cd pawlife-server
+          if [ ! -f .env ]; then cp .env.example .env 2>/dev/null || echo -e "PORT=4000\nDATABASE_URL=\"file:./pawlife.db\"" > .env; fi
+          npm install
+          npx prisma db push --accept-data-loss
+          npm run build
           cd ..
-          echo "=== Installing pawlife-web dependencies ==="
-          cd pawlife-web && npm install
-          cd ..
-          echo "=== Installing pawlife-e2e dependencies ==="
-          cd pawlife-e2e && npm install
 
-      - name: 5. Start Backend Server & Web Client
-        run: |
-          echo "=== Starting pawlife-server ==="
-          cd pawlife-server && node dist/server.js &
-          sleep 4
-          curl --retry 5 --retry-delay 2 http://localhost:4000/api/health
+          echo "=== 2. Setting up Web Client (pawlife-web) ==="
+          cd pawlife-web
+          npm install
+          npm run build
           cd ..
-          echo "=== Starting pawlife-web ==="
-          cd pawlife-web && npm run dev -- --host &
-          sleep 6
-          curl --retry 5 --retry-delay 2 http://localhost:5173
 
-      - name: 6. Execute Selenium E2E Automation Suites
+          echo "=== 3. Setting up E2E Test Automation (pawlife-e2e) ==="
+          cd pawlife-e2e
+          npm install
+          cd ..
+
+      - name: 4. Launch Services and Execute Selenium E2E Tests
         env:
+          PORT: 4000
+          DATABASE_URL: "file:./pawlife.db"
           TEST_ENV: local
           BASE_URL: http://localhost:5173
           API_URL: http://localhost:4000/api
+          WS_URL: ws://localhost:4000
           BROWSER: ${{ github.event.inputs.browser || 'chrome' }}
           HEADLESS: 'true'
           RETRIES: 1
         run: |
+          echo "=== Launching Backend Server on port 4000 ==="
+          cd pawlife-server
+          node dist/server.js > /tmp/pawlife-server.log 2>&1 &
+          SERVER_PID=$!
+          cd ..
+
+          echo "=== Launching Web Production Preview on port 5173 ==="
+          cd pawlife-web
+          npx vite preview --port 5173 --host > /tmp/pawlife-web.log 2>&1 &
+          WEB_PID=$!
+          cd ..
+
+          echo "=== Polling for services with --retry-connrefused ==="
+          echo "Waiting for Backend Server at http://localhost:4000/api/health..."
+          curl --retry 30 --retry-delay 1 --retry-connrefused -s -f http://localhost:4000/api/health || {
+            echo "❌ Backend server failed to start! Log:"
+            cat /tmp/pawlife-server.log
+            kill $SERVER_PID $WEB_PID 2>/dev/null || true
+            exit 1
+          }
+          echo "✅ Backend server is online and healthy!"
+
+          echo "Waiting for Web Client at http://localhost:5173..."
+          curl --retry 30 --retry-delay 1 --retry-connrefused -s -f http://localhost:5173 || {
+            echo "❌ Web client failed to start! Log:"
+            cat /tmp/pawlife-web.log
+            kill $SERVER_PID $WEB_PID 2>/dev/null || true
+            exit 1
+          }
+          echo "✅ Web application is online and ready!"
+
+          echo "=== Executing Selenium E2E Automation Suites ==="
           cd pawlife-e2e
           npm test
+          TEST_EXIT_CODE=$?
 
-      - name: 7. Upload Excel E2E Report Artifact
+          echo "=== Cleaning up background server & web processes ==="
+          kill $SERVER_PID $WEB_PID 2>/dev/null || true
+          exit $TEST_EXIT_CODE
+
+      - name: 5. Upload Excel E2E Report Artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: E2E-Excel-Report-${{ github.run_number }}
           path: pawlife-e2e/reports/excel/E2E_Report.xlsx
+          if-no-files-found: warn
           retention-days: 30
 
-      - name: 8. Upload Mochawesome HTML Report Artifact
+      - name: 6. Upload Mochawesome HTML Report Artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: Mochawesome-HTML-Report-${{ github.run_number }}
           path: pawlife-e2e/reports/mochawesome/
+          if-no-files-found: warn
           retention-days: 30
 
-      - name: 9. Upload Failure Screenshots & Logs
+      - name: 7. Upload Failure Screenshots & Logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -101,4 +136,5 @@ jobs:
           path: |
             pawlife-e2e/reports/failures/
             pawlife-e2e/logs/
+          if-no-files-found: ignore
           retention-days: 14
