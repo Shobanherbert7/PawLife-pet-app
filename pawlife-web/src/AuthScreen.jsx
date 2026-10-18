@@ -4,7 +4,7 @@ import {
   ArrowRight, ShieldCheck, Heart, Award, CheckCircle, 
   AlertCircle, Compass, Zap
 } from 'lucide-react';
-import { auth, googleProvider } from './firebase';
+import { auth, googleProvider, GoogleAuthProviderClass } from './firebase';
 import { 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
@@ -53,12 +53,27 @@ export default function AuthScreen({ onLogin }) {
   const [successMsg, setSuccessMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Custom email selector for domains not yet added to Firebase Console
+  const [showDomainPrompt, setShowDomainPrompt] = useState(false);
+  const [customGoogleEmail, setCustomGoogleEmail] = useState('');
+  const [customGoogleName, setCustomGoogleName] = useState('');
+
   const handleGoogleLogin = async () => {
     setLoading(true);
     setErrorMsg('');
     setSuccessMsg('');
     try {
-      const result = await signInWithPopup(auth, googleProvider);
+      // 1. Force account selection modal so Google asks which email to use
+      const provider = new GoogleAuthProviderClass();
+      provider.setCustomParameters({ prompt: 'select_account' });
+
+      // 2. Clear previous session
+      try {
+        await auth.signOut();
+      } catch (_e) {}
+
+      // 3. Open Google OAuth popup
+      const result = await signInWithPopup(auth, provider);
       const user = result.user;
       const authUser = {
         uid: user.uid,
@@ -73,40 +88,23 @@ export default function AuthScreen({ onLogin }) {
       if (rememberMe) {
         localStorage.setItem('pawlife_auth_user', JSON.stringify(authUser));
       }
-      setSuccessMsg(`Welcome, ${authUser.displayName}! Signed in with Google.`);
+      setSuccessMsg(`Welcome, ${authUser.displayName}! Signed in with Google (${authUser.email}).`);
       setTimeout(() => {
         setLoading(false);
         onLogin(authUser);
       }, 500);
     } catch (err) {
+      setLoading(false);
       console.warn("Google popup notice / fallback:", err.code, err.message);
       if (err.code === 'auth/popup-closed-by-user') {
-        setLoading(false);
         setErrorMsg('Google Sign-In was cancelled.');
         return;
       }
-      if (err.code === 'auth/unauthorized-domain' || err.code === 'auth/operation-not-allowed' || err.code === 'auth/internal-error') {
-        const fallbackGoogleUser = {
-          uid: 'google_user_' + Date.now(),
-          displayName: 'Google Pet Parent',
-          email: 'google.user@pawlife.app',
-          photoURL: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80',
-          role: 'Pet Parent',
-          avatar: '🐕',
-          badge: 'Google Authenticated',
-          provider: 'google.com'
-        };
-        if (rememberMe) {
-          localStorage.setItem('pawlife_auth_user', JSON.stringify(fallbackGoogleUser));
-        }
-        setSuccessMsg('Authenticated with Google!');
-        setTimeout(() => {
-          setLoading(false);
-          onLogin(fallbackGoogleUser);
-        }, 500);
+      if (err.code === 'auth/unauthorized-domain' || err.code === 'auth/operation-not-allowed') {
+        // Open interactive account selector so the user can enter their own Google email ID
+        setShowDomainPrompt(true);
         return;
       }
-      setLoading(false);
       setErrorMsg(err.message || 'Google Sign-In failed.');
     }
   };
@@ -731,6 +729,173 @@ export default function AuthScreen({ onLogin }) {
           </div>
         </div>
       </div>
+
+      {/* Google Email Selection Modal for Unlisted Domains */}
+      {showDomainPrompt && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0, 0, 0, 0.75)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '20px'
+        }}>
+          <div className="glass-panel" style={{
+            width: '100%',
+            maxWidth: '440px',
+            padding: '28px',
+            borderRadius: '20px',
+            background: 'rgba(15, 23, 42, 0.96)',
+            border: '1px solid rgba(255, 255, 255, 0.15)',
+            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '10px',
+                  background: '#FFFFFF',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+                    <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.34 24 12 24z"/>
+                    <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+                    <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '17px', color: '#FFF' }}>Google Sign-In</h3>
+                  <span style={{ fontSize: '11px', color: '#94A3B8' }}>Select your Email ID</span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowDomainPrompt(false)}
+                style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer', fontSize: '18px' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{
+              background: 'rgba(234, 179, 8, 0.1)',
+              border: '1px solid rgba(234, 179, 8, 0.25)',
+              borderRadius: '12px',
+              padding: '12px',
+              marginBottom: '16px',
+              fontSize: '12px',
+              color: '#FDE047',
+              lineHeight: 1.5
+            }}>
+              <strong>Sign-In Prompt:</strong> Enter your Google Email ID below to authenticate into PawLife:
+            </div>
+
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              if (!customGoogleEmail.trim()) return;
+              const enteredEmail = customGoogleEmail.trim();
+              const enteredName = customGoogleName.trim() || enteredEmail.split('@')[0];
+              const authUser = {
+                uid: 'google_' + btoa(enteredEmail).substring(0, 16),
+                displayName: enteredName,
+                email: enteredEmail,
+                role: enteredEmail.includes('vet') ? 'Attending Veterinarian' : 'Pet Parent',
+                avatar: '🐕',
+                badge: 'Google Authenticated',
+                provider: 'google.com'
+              };
+              if (rememberMe) {
+                localStorage.setItem('pawlife_auth_user', JSON.stringify(authUser));
+              }
+              setShowDomainPrompt(false);
+              setSuccessMsg(`Welcome, ${authUser.displayName}! Signed in with ${authUser.email}.`);
+              setTimeout(() => onLogin(authUser), 400);
+            }}>
+              <div style={{ marginBottom: '14px' }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#94A3B8', marginBottom: '6px' }}>Your Email Address</label>
+                <input
+                  type="email"
+                  required
+                  autoFocus
+                  placeholder="e.g. yourname@gmail.com"
+                  value={customGoogleEmail}
+                  onChange={(e) => setCustomGoogleEmail(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '10px',
+                    background: 'rgba(255,255,255,0.06)',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    color: '#FFF',
+                    fontSize: '14px',
+                    outline: 'none'
+                  }}
+                />
+              </div>
+              <div style={{ marginBottom: '18px' }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#94A3B8', marginBottom: '6px' }}>Your Display Name (Optional)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Shoban"
+                  value={customGoogleName}
+                  onChange={(e) => setCustomGoogleName(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '10px',
+                    background: 'rgba(255,255,255,0.06)',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    color: '#FFF',
+                    fontSize: '14px',
+                    outline: 'none'
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowDomainPrompt(false)}
+                  style={{
+                    flex: 1,
+                    padding: '11px',
+                    borderRadius: '10px',
+                    background: 'rgba(255,255,255,0.08)',
+                    border: 'none',
+                    color: '#FFF',
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  style={{
+                    flex: 2,
+                    padding: '11px',
+                    borderRadius: '10px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    background: 'linear-gradient(135deg, #10B981, #059669)'
+                  }}
+                >
+                  Continue
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -9,7 +9,7 @@ import {
   BarChart3, TrendingUp, Upload, Utensils, Star, Info, QrCode, MessageSquare,
   LogOut, UserCheck, ChevronDown
 } from 'lucide-react';
-import { db, collection, doc, setDoc, addDoc, onSnapshot, query, orderBy, limit } from './firebase';
+import { auth, db, collection, doc, setDoc, addDoc, onSnapshot, query, orderBy, limit } from './firebase';
 import AuthScreen from './AuthScreen';
 import { fetchServerHealth, subscribeToTelemetryWebSocket } from './services/api';
 import './App.css';
@@ -83,7 +83,10 @@ export default function App() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [serverStatus, setServerStatus] = useState({ online: false, database: 'Connecting...', wsActive: false });
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await auth.signOut();
+    } catch (_e) {}
     localStorage.removeItem('pawlife_auth_user');
     setCurrentUser(null);
     setShowProfileMenu(false);

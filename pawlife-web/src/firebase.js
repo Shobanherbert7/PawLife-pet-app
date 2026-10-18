@@ -32,13 +32,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
+export const GoogleAuthProviderClass = GoogleAuthProvider;
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
-
-// Authenticate anonymously in background if not already signed in
-signInAnonymously(auth).catch(err => {
-  console.warn("Firebase anonymous auth fallback:", err.message);
-});
 
 export {
   collection,
