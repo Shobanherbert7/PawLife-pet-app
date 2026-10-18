@@ -1,0 +1,47 @@
+{
+  "name": "pawlife-e2e-automation",
+  "version": "1.0.0",
+  "description": "Enterprise E2E Selenium WebDriver Automation Framework for React Application",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --config .mocharc.json tests/**/*.test.js",
+    "test:chrome": "cross-env BROWSER=chrome HEADLESS=false mocha --config .mocharc.json tests/**/*.test.js",
+    "test:chrome:headless": "cross-env BROWSER=chrome HEADLESS=true mocha --config .mocharc.json tests/**/*.test.js",
+    "test:firefox": "cross-env BROWSER=firefox HEADLESS=false mocha --config .mocharc.json tests/**/*.test.js",
+    "test:firefox:headless": "cross-env BROWSER=firefox HEADLESS=true mocha --config .mocharc.json tests/**/*.test.js",
+    "test:edge": "cross-env BROWSER=edge HEADLESS=false mocha --config .mocharc.json tests/**/*.test.js",
+    "test:edge:headless": "cross-env BROWSER=edge HEADLESS=true mocha --config .mocharc.json tests/**/*.test.js",
+    "test:auth": "cross-env BROWSER=chrome HEADLESS=true mocha --config .mocharc.json tests/authentication.test.js",
+    "test:forms": "cross-env BROWSER=chrome HEADLESS=true mocha --config .mocharc.json tests/formValidation.test.js",
+    "test:ui": "cross-env BROWSER=chrome HEADLESS=true mocha --config .mocharc.json tests/uiElements.test.js",
+    "test:nav": "cross-env BROWSER=chrome HEADLESS=true mocha --config .mocharc.json tests/navigation.test.js",
+    "test:dynamic": "cross-env BROWSER=chrome HEADLESS=true mocha --config .mocharc.json tests/dynamicScanner.test.js",
+    "test:parallel": "cross-env BROWSER=chrome HEADLESS=true mocha --config .mocharc.json --parallel tests/**/*.test.js",
+    "clean:reports": "rimraf reports/screenshots/* reports/failures/* reports/excel/* logs/*"
+  },
+  "keywords": [
+    "selenium",
+    "webdriver",
+    "mocha",
+    "chai",
+    "exceljs",
+    "mochawesome",
+    "react-e2e",
+    "enterprise-testing"
+  ],
+  "author": "Enterprise QA Architecture Team",
+  "license": "MIT",
+  "dependencies": {
+    "chai": "^4.3.10",
+    "chalk": "^4.1.2",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.4.5",
+    "exceljs": "^4.4.0",
+    "mocha": "^10.7.3",
+    "mochawesome": "^7.1.3",
+    "rimraf": "^6.0.1",
+    "selenium-webdriver": "^4.25.0",
+    "winston": "^3.15.0",
+    "winston-daily-rotate-file": "^5.0.0"
+  }
+}

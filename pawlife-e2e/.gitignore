@@ -1,0 +1,11 @@
+﻿node_modules/
+reports/failures/*
+!reports/failures/.gitkeep
+reports/excel/*
+!reports/excel/.gitkeep
+reports/mochawesome/*
+!reports/mochawesome/.gitkeep
+logs/*
+!logs/.gitkeep
+.DS_Store
+Thumbs.db

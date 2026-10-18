@@ -1,0 +1,19 @@
+{
+  "extension": ["js"],
+  "spec": "tests/**/*.test.js",
+  "require": "tests/baseTest.js",
+  "timeout": 45000,
+  "retries": 1,
+  "exit": true,
+  "recursive": true,
+  "reporter": "mochawesome",
+  "reporter-option": [
+    "reportDir=reports/mochawesome",
+    "reportFilename=E2E_Test_Report",
+    "html=true",
+    "json=true",
+    "overwrite=true",
+    "charts=true",
+    "code=true"
+  ]
+}
