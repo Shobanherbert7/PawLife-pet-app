@@ -1,0 +1,146 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  avatar    String?
+  role      String   @default("OWNER")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  pets      Pet[]
+  family    FamilyMember[]
+  orders    MarketplaceOrder[]
+}
+
+model Pet {
+  id           Int              @id @default(autoincrement())
+  name         String
+  species      String           @default("Dog")
+  breed        String
+  dob          DateTime?
+  gender       String           @default("Unknown")
+  weight       Float            @default(5.0)
+  photoUrl     String?
+  microchipId  String?
+  isActive     Boolean          @default(true)
+  ownerId      String?
+  owner        User?            @relation(fields: [ownerId], references: [id])
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  telemetry    TelemetryLog[]
+  feedings     FeedingLog[]
+  weights      WeightRecord[]
+  medications  Medication[]
+  familyTeam   FamilyMember[]
+  acoustics    AcousticEvent[]
+  walks        WalkSession[]
+}
+
+model TelemetryLog {
+  id        Int      @id @default(autoincrement())
+  petId     Int
+  pet       Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+  bpm       Int      @default(80)
+  bodyTemp  Float    @default(38.5)
+  steps     Int      @default(0)
+  battery   Int      @default(100)
+  latitude  Float    @default(13.0827)
+  longitude Float    @default(80.2707)
+  isSafe    Boolean  @default(true)
+  timestamp DateTime @default(now())
+}
+
+model FeedingLog {
+  id           Int      @id @default(autoincrement())
+  petId        Int
+  pet          Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+  foodName     String
+  portionGrams Float    @default(150.0)
+  calories     Int?
+  fedAt        DateTime @default(now())
+}
+
+model WalkSession {
+  id              Int      @id @default(autoincrement())
+  petId           Int
+  pet             Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+  startTime       DateTime @default(now())
+  endTime         DateTime @default(now())
+  durationSeconds Int      @default(0)
+  distanceMeters  Float    @default(0.0)
+  caloriesBurned  Int      @default(0)
+  routePointsJson String?
+  createdAt       DateTime @default(now())
+}
+
+model WeightRecord {
+  id         Int      @id @default(autoincrement())
+  petId      Int
+  pet        Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+  weightKg   Float
+  recordedAt DateTime @default(now())
+}
+
+model Medication {
+  id          Int      @id @default(autoincrement())
+  petId       Int
+  pet         Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+  name        String
+  dosage      String
+  frequency   String
+  nextDue     DateTime
+  isCompleted Boolean  @default(false)
+}
+
+model FamilyMember {
+  id          Int      @id @default(autoincrement())
+  petId       Int
+  pet         Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  name        String
+  role        String
+  avatarEmoji String   @default("👩")
+  createdAt   DateTime @default(now())
+}
+
+model CommunityPost {
+  id           Int      @id @default(autoincrement())
+  authorName   String
+  authorAvatar String   @default("🐕")
+  content      String
+  imageUrl     String?
+  likesCount   Int      @default(0)
+  commentsJson String   @default("[]")
+  createdAt    DateTime @default(now())
+}
+
+model AcousticEvent {
+  id             Int      @id @default(autoincrement())
+  petId          Int
+  pet            Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+  classification String   @default("Playful Bark")
+  confidence     Float    @default(0.92)
+  stressScore    Int      @default(18)
+  bpmCorrelation Int      @default(82)
+  audioSnippet   String?
+  timestamp      DateTime @default(now())
+}
+
+model MarketplaceOrder {
+  id          Int      @id @default(autoincrement())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  totalAmount Float
+  status      String   @default("CONFIRMED")
+  itemsJson   String
+  createdAt   DateTime @default(now())
+}

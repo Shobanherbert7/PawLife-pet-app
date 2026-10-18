@@ -1,0 +1,41 @@
+{
+  "name": "pawlife-server",
+  "version": "1.0.0",
+  "description": "Dedicated Backend & Real-time Telemetry Engine for PawLife",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
+    "db:seed": "ts-node-dev --transpile-only src/seed.ts"
+  },
+  "keywords": [
+    "pawlife",
+    "pet-care",
+    "iot",
+    "telemetry",
+    "express",
+    "prisma"
+  ],
+  "author": "PawLife Team",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "ws": "^8.18.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.9.0",
+    "@types/ws": "^8.5.13",
+    "prisma": "^5.22.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.6.3"
+  }
+}

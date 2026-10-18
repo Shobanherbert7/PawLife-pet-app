@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "346326276764",
+    "project_id": "pawlife-ced47",
+    "storage_bucket": "pawlife-ced47.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:346326276764:android:aaf587ec9a9704a3bc6b59",
+        "android_client_info": {
+          "package_name": "com.pawlife.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "346326276764-ojr3lpk02t97smvvd6ohfb4ijftjnssi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCNgrcU2tWoTf2IjSaGiBtmPvReSNzAwcw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "346326276764-ojr3lpk02t97smvvd6ohfb4ijftjnssi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:346326276764:android:aaf587ec9a9704a3bc6b59",
+        "android_client_info": {
+          "package_name": "com.pawlife.app.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "346326276764-ojr3lpk02t97smvvd6ohfb4ijftjnssi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCNgrcU2tWoTf2IjSaGiBtmPvReSNzAwcw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "346326276764-ojr3lpk02t97smvvd6ohfb4ijftjnssi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

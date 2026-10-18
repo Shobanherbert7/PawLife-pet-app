@@ -1,0 +1,49 @@
+# ==========================================
+# PawLife Monorepo Git Ignore Rules
+# ==========================================
+
+# Android & Gradle
+.gradle/
+**/build/
+build/
+*.apk
+*.aab
+*.zip
+*.log
+crash.log
+local.properties
+.cxx/
+captures/
+default.size
+
+# Node.js & Web
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+keystore.properties
+*.jks
+*.keystore
+
+# Databases (recreated via prisma db push & seed)
+*.db
+*.db-journal
+*.sqlite
+*.sqlite-journal
+
+# IDEs & System Caches
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+Desktop.ini

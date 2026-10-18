@@ -1,0 +1,33 @@
+# Android/Gradle build files
+*.iml
+.gradle/
+/local.properties
+/.idea/
+.DS_Store
+/build/
+/captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# Gradle wrapper (keep wrapper scripts, ignore jar)
+gradle/wrapper/gradle-wrapper.jar
+
+# Local configuration
+local.properties
+
+# OS files
+Thumbs.db
+ehthumbs.db
+
+# IDE files
+*.swp
+*.swo
+*~
+
+# Keystore files (never commit!)
+*.jks
+*.keystore
