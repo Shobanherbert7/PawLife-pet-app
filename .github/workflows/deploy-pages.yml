@@ -5,22 +5,15 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 concurrency:
   group: 'pages'
   cancel-in-progress: true
 
 jobs:
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: 1. Checkout Repository
@@ -38,15 +31,13 @@ jobs:
           cd pawlife-web
           npm install
           npm run build
+          # Prevent GitHub Pages from ignoring files or processing with Jekyll
+          touch dist/.nojekyll
+          # SPA routing fallback: copy index.html to 404.html
+          cp dist/index.html dist/404.html
 
-      - name: 4. Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: 5. Upload Pages Artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: 4. Deploy to GitHub Pages Branch (gh-pages)
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          path: 'pawlife-web/dist'
-
-      - name: 6. Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          folder: pawlife-web/dist
+          branch: gh-pages
