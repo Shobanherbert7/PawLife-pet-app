@@ -1,0 +1,56 @@
+{
+  "appConfig": {
+    "package": "com.pawlife.app",
+    "activity": "com.pawlife.app.presentation.MainActivity",
+    "deepLinks": {
+      "feeding": "pawlife://feeding",
+      "walks": "pawlife://walks",
+      "triage": "pawlife://triage",
+      "family": "pawlife://family"
+    }
+  },
+  "users": {
+    "valid": {
+      "email": "shoban@pawlife.app",
+      "password": "Password123!",
+      "name": "Shoban",
+      "persona": "Shoban"
+    },
+    "vet": {
+      "email": "vet.priya@pawlife.app",
+      "password": "VetPassword2026!",
+      "name": "Dr. Priya Sharma"
+    },
+    "invalid": {
+      "email": "unregistered@pawlife.app",
+      "password": "WrongPassword999!"
+    },
+    "malformedEmails": [
+      "not-an-email",
+      "user@@domain.com",
+      "missingdomain@"
+    ],
+    "shortPasswords": [
+      "123",
+      "a",
+      "pass"
+    ]
+  },
+  "formData": {
+    "meals": {
+      "valid": {
+        "foodName": "Royal Canin Golden Retriever Adult",
+        "portion": 160
+      },
+      "invalid": {
+        "portionNegative": -50,
+        "portionZero": 0
+      }
+    },
+    "pets": [
+      { "id": 1, "name": "Max", "breed": "Golden Retriever" },
+      { "id": 2, "name": "Luna", "breed": "Persian Cat" },
+      { "id": 3, "name": "Rocky", "breed": "French Bulldog" }
+    ]
+  }
+}
