@@ -1,0 +1,56 @@
+{
+  "environments": {
+    "local": "http://localhost:5173",
+    "dev": "https://dev.pawlife.app",
+    "staging": "https://staging.pawlife.app",
+    "prod": "https://app.pawlife.com"
+  },
+  "users": {
+    "validUser": {
+      "email": "shoban@pawlife.app",
+      "password": "Password123!",
+      "name": "Shoban",
+      "role": "Primary Pet Parent"
+    },
+    "vetUser": {
+      "email": "vet.priya@pawlife.app",
+      "password": "VetPassword2026!",
+      "name": "Dr. Priya Sharma",
+      "role": "Attending Veterinarian"
+    },
+    "invalidCredentials": {
+      "email": "wrong.user@pawlife.app",
+      "password": "IncorrectPassword999!"
+    },
+    "malformedEmails": [
+      "not-an-email",
+      "missing-domain@",
+      "@missing-username.com",
+      "spaces in email@domain.com"
+    ],
+    "shortPasswords": [
+      "1",
+      "12",
+      "123"
+    ]
+  },
+  "formData": {
+    "feeding": {
+      "validMeal": {
+        "foodName": "Royal Canin Golden Retriever Adult",
+        "portionGrams": 180,
+        "calories": 540
+      },
+      "invalidPortions": [
+        -10,
+        0,
+        99999
+      ]
+    },
+    "petProfiles": [
+      { "id": 1, "name": "Max", "breed": "Golden Retriever" },
+      { "id": 2, "name": "Luna", "breed": "Persian Cat" },
+      { "id": 3, "name": "Rocky", "breed": "French Bulldog" }
+    ]
+  }
+}
